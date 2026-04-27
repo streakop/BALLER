@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cf-bg: #ffffff;
+  --color-cf-text: #000000;
+  --color-cf-border: #dcdcdc;
+  --color-cf-header: #f3f3f3;
+  --color-cf-link: #0000cc;
+  --color-cf-link-hover: #0044cc;
+}
+
+:root {
+  --background: var(--color-cf-bg);
+  --foreground: var(--color-cf-text);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+th, td {
+  border: 1px solid var(--color-cf-border);
+  padding: 0.5rem;
+  text-align: left;
+}
+
+th {
+  background-color: var(--color-cf-header);
+  font-weight: bold;
+}
+
+tr:nth-child(even) {
+  background-color: #fcfcfc;
+}
+
+a {
+  color: var(--color-cf-link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: var(--color-cf-link-hover);
+}
