@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ResourceList from '@/components/ResourceList';
@@ -12,6 +12,7 @@ export default async function SubjectPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params;
+  const supabase = await createClient();
 
   // Fetch subject details
   const { data: subject, error: subError } = await supabase
@@ -40,7 +41,7 @@ export default async function SubjectPage({
       <div style={{ marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid var(--color-cf-border)' }}>
         <h2 style={{ margin: '0 0 0.5rem 0' }}>{subject.code} - {subject.name}</h2>
         <div style={{ fontSize: '0.9rem', color: '#555' }}>
-          Semester: {subject.semester} | <Link href="/">Back to courses</Link>
+          <Link href="/">Back to courses</Link>
         </div>
       </div>
 

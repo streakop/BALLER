@@ -1,14 +1,14 @@
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import SubjectList from '@/components/SubjectList';
 
 export const revalidate = 60; // Cache page for 60 seconds
 
 export default async function Home() {
+  const supabase = await createClient();
   // Fetch subjects from Supabase
   const { data: subjects, error } = await supabase
     .from('subjects')
     .select('*')
-    .order('semester', { ascending: true })
     .order('code', { ascending: true });
 
   const hasData = subjects && subjects.length > 0;

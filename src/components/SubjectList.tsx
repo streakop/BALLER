@@ -18,16 +18,16 @@ export default function SubjectList({ subjects }: { subjects: any[] }) {
       <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={{ margin: 0 }}>Courses</h2>
         <div>
-          <input 
-            type="text" 
-            placeholder="Search course name or code..." 
+          <input
+            type="text"
+            placeholder="Search course name or code..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ 
-              padding: '0.25rem 0.5rem', 
-              border: '1px solid var(--color-cf-border)',
+            style={{
+              padding: '0.25rem 0.5rem',
+              border: '1px solid red',
               width: '250px'
-            }} 
+            }}
           />
         </div>
       </div>
@@ -43,8 +43,7 @@ export default function SubjectList({ subjects }: { subjects: any[] }) {
           <thead>
             <tr>
               <th style={{ width: '15%' }}>Code</th>
-              <th style={{ width: '55%' }}>Name</th>
-              <th style={{ width: '15%' }}>Semester</th>
+              <th style={{ width: '70%' }}>Name</th>
               <th style={{ width: '15%' }}>Actions</th>
             </tr>
           </thead>
@@ -57,7 +56,6 @@ export default function SubjectList({ subjects }: { subjects: any[] }) {
                     {sub.name}
                   </Link>
                 </td>
-                <td>{sub.semester}</td>
                 <td>
                   <Link href={`/subjects/${sub.id}`}>View Materials</Link>
                 </td>

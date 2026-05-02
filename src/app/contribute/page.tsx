@@ -1,25 +1,47 @@
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
-import { supabase } from '@/lib/supabase';
-import { useSearchParams } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Select from 'react-select';
+import Link from 'next/link';
 
 function ContributeForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const defaultSubjectId = searchParams?.get('subject') || '';
+  const typeParam = searchParams?.get('type');
+  
+  let selectedType: string | null = null;
+  if (typeParam === 'pyq') selectedType = 'Question Paper';
+  if (typeParam === 'notes') selectedType = 'Notes';
+  if (typeParam === 'assignment') selectedType = 'Assignment';
+
+  const supabase = createClient();
 
   const [subjects, setSubjects] = useState<any[]>([]);
+  const [semesters, setSemesters] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [examType, setExamType] = useState<string>('Midterm');
+
   useEffect(() => {
-    async function fetchSubjects() {
-      const { data } = await supabase.from('subjects').select('*').order('code');
-      if (data) setSubjects(data);
+    async function fetchData() {
+      const { data: subData, error: subError } = await supabase.from('subjects').select('*').order('code');
+      if (subError) console.error("Error fetching subjects:", subError);
+      if (subData) setSubjects(subData);
+
+      const { data: semData, error: semError } = await supabase.from('semesters').select('*').order('name');
+      if (semError) {
+        console.error("Error fetching semesters:", semError);
+        alert("Failed to load semesters. Did you run the SQL migration?");
+      }
+      if (semData) setSemesters(semData);
     }
-    fetchSubjects();
-  }, []);
+    fetchData();
+  }, [supabase]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,10 +52,11 @@ function ContributeForm() {
     const formData = new FormData(e.currentTarget);
     const file = formData.get('file') as File;
     const subjectId = formData.get('subject_id') as string;
-    const year = Number(formData.get('year'));
-    const semester = Number(formData.get('semester'));
-    const examType = formData.get('exam_type') as string;
-    const resourceType = formData.get('resource_type') as string;
+    const semester = formData.get('semester') as string;
+    const examType = selectedType === 'Question Paper' ? (formData.get('exam_type') as string) : 'General';
+    const slot = formData.get('slot') as string;
+    const faculty = formData.get('faculty') as string;
+    const resourceType = selectedType as string; // Use the state variable
     const submittedBy = formData.get('submitted_by') as string;
 
     if (!file || !subjectId) {
@@ -60,9 +83,10 @@ function ContributeForm() {
       const { error: dbError } = await supabase.from('contributions').insert([
         {
           subject_id: subjectId,
-          year,
           semester,
           exam_type: examType,
+          slot,
+          faculty,
           resource_type: resourceType,
           file_url: publicUrl,
           submitted_by: submittedBy,
@@ -74,11 +98,37 @@ function ContributeForm() {
 
       setSuccess(true);
       (e.target as HTMLFormElement).reset();
+      router.push('/contribute'); // Reset back to selection screen
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred.');
     } finally {
       setLoading(false);
     }
+  }
+
+  if (!selectedType) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+        <h3>What would you like to contribute?</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1.5rem' }}>
+          <Link
+            href="/contribute?type=pyq"
+            style={{ display: 'block', textDecoration: 'none', color: 'inherit', padding: '1.5rem', fontSize: '1.1rem', backgroundColor: 'var(--color-cf-header)', border: '1px solid var(--color-cf-border)', borderRadius: '8px' }}>
+            📝 Question Paper (PYQ)
+          </Link>
+          <Link
+            href="/contribute?type=notes"
+            style={{ display: 'block', textDecoration: 'none', color: 'inherit', padding: '1.5rem', fontSize: '1.1rem', backgroundColor: 'var(--color-cf-header)', border: '1px solid var(--color-cf-border)', borderRadius: '8px' }}>
+            📚 Study Material (Notes)
+          </Link>
+          <Link
+            href="/contribute?type=assignment"
+            style={{ display: 'block', textDecoration: 'none', color: 'inherit', padding: '1.5rem', fontSize: '1.1rem', backgroundColor: 'var(--color-cf-header)', border: '1px solid var(--color-cf-border)', borderRadius: '8px' }}>
+            📄 Assignment
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -95,44 +145,99 @@ function ContributeForm() {
         </div>
       )}
 
+      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f9f9f9', padding: '0.5rem 1rem', border: '1px solid var(--color-cf-border)' }}>
+        <span>You are contributing: <strong>{selectedType}</strong></span>
+        <Link href="/contribute" style={{ background: 'none', border: 'none', color: 'var(--color-link)', cursor: 'pointer', textDecoration: 'underline' }}>Change</Link>
+      </div>
+
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
-          <label style={{ display: 'block', fontWeight: 'bold' }}>Subject</label>
-          <select name="subject_id" required defaultValue={defaultSubjectId} style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--color-cf-border)', backgroundColor: '#fff' }}>
-            <option value="">-- Select a Course --</option>
-            {subjects.map(sub => (
-              <option key={sub.id} value={sub.id}>{sub.code} - {sub.name} (Sem {sub.semester})</option>
-            ))}
-          </select>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Subject</label>
+          <Select
+            name="subject_id"
+            required
+            defaultValue={subjects.map(s => ({ value: s.id, label: `${s.code} - ${s.name}` })).find(o => o.value === defaultSubjectId)}
+            options={subjects.map(sub => ({ value: sub.id, label: `${sub.code} - ${sub.name}` }))}
+            placeholder="-- Search or Select a Course --"
+            styles={{ control: (base) => ({ ...base, borderColor: 'var(--color-cf-border)' }) }}
+          />
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontWeight: 'bold' }}>Year</label>
-            <input name="year" type="number" required defaultValue={new Date().getFullYear()} style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--color-cf-border)' }} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontWeight: 'bold' }}>Semester</label>
-            <input name="semester" type="number" required min={1} max={8} style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--color-cf-border)' }} />
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 200px' }}>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Semester</label>
+            <Select
+              name="semester"
+              required
+              options={semesters.map(sem => ({ value: sem.name, label: sem.name }))}
+              placeholder="-- Search or Select a Semester --"
+              styles={{ control: (base) => ({ ...base, borderColor: 'var(--color-cf-border)' }) }}
+            />
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontWeight: 'bold' }}>Exam Type</label>
-            <select name="exam_type" required style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--color-cf-border)' }}>
-              <option value="Midterm">Midterm</option>
-              <option value="Endterm">Endterm</option>
-              <option value="Quiz">Quiz</option>
-            </select>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          {selectedType === 'Question Paper' && (
+            <div style={{ flex: '1 1 200px' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Exam Type</label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  type="button"
+                  onClick={() => setExamType('Midterm')}
+                  style={{ 
+                    flex: 1, 
+                    padding: '0.4rem', 
+                    cursor: 'pointer', 
+                    border: examType === 'Midterm' ? '2px solid #2563eb' : '2px solid #ccc', 
+                    backgroundColor: examType === 'Midterm' ? '#eff6ff' : 'transparent',
+                    color: examType === 'Midterm' ? '#1d4ed8' : '#666',
+                    borderRadius: '6px',
+                    fontWeight: 'bold',
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                >
+                  Midterm
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setExamType('Endterm')}
+                  style={{ 
+                    flex: 1, 
+                    padding: '0.4rem', 
+                    cursor: 'pointer', 
+                    border: examType === 'Endterm' ? '2px solid #2563eb' : '2px solid #ccc', 
+                    backgroundColor: examType === 'Endterm' ? '#eff6ff' : 'transparent',
+                    color: examType === 'Endterm' ? '#1d4ed8' : '#666',
+                    borderRadius: '6px',
+                    fontWeight: 'bold',
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                >
+                  Term End
+                </button>
+              </div>
+              <input type="hidden" name="exam_type" value={examType} />
+            </div>
+          )}
+          <div style={{ flex: '1 1 200px' }}>
+            <label style={{ display: 'block', fontWeight: 'bold' }}>Slot (e.g. A11+A12)</label>
+            <input
+              name="slot"
+              type="text"
+              placeholder="e.g. A11+A12"
+              pattern="^[A-Z][0-9]{2}(\+[A-Z][0-9]{2})*$"
+              title="Format: A11 or A11+A12 or B21+D14. Must be capital letter followed by two numbers, separated by '+'"
+              style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--color-cf-border)' }}
+            />
           </div>
-          <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontWeight: 'bold' }}>Resource Type</label>
-            <select name="resource_type" required style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--color-cf-border)' }}>
-              <option value="Question Paper">Question Paper</option>
-              <option value="Notes">Notes</option>
-              <option value="Assignment">Assignment</option>
-            </select>
+          <div style={{ flex: '1 1 200px' }}>
+            <label style={{ display: 'block', fontWeight: 'bold' }}>Faculty Name</label>
+            <input
+              name="faculty"
+              type="text"
+              placeholder="e.g. Dr. Name Surname"
+              style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--color-cf-border)' }}
+            />
           </div>
         </div>
 
@@ -142,8 +247,8 @@ function ContributeForm() {
         </div>
 
         <div>
-          <label style={{ display: 'block', fontWeight: 'bold' }}>File (PDF only)</label>
-          <input name="file" type="file" accept=".pdf" required style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--color-cf-border)' }} />
+          <label style={{ display: 'block', fontWeight: 'bold' }}>File (PDF or PPT only)</label>
+          <input name="file" type="file" accept=".pdf,.ppt,.pptx" required style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--color-cf-border)' }} />
         </div>
 
         <button type="submit" disabled={loading} style={{ padding: '0.5rem', backgroundColor: 'var(--color-cf-header)', border: '1px solid var(--color-cf-border)', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -156,7 +261,7 @@ function ContributeForm() {
 
 export default function ContributePage() {
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '1rem' }}>
       <h2 style={{ borderBottom: '1px solid var(--color-cf-border)', paddingBottom: '0.5rem' }}>Contribute Material</h2>
       <Suspense fallback={<div>Loading form...</div>}>
         <ContributeForm />

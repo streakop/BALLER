@@ -1,17 +1,23 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/server';
+import { signInWithGoogle, signOut } from './actions';
 
 export const metadata: Metadata = {
   title: "Baller - PYQ & Study Material",
   description: "Minimalist platform for browsing and downloading previous year questions.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isAdmin = user?.email === (process.env.ADMIN_EMAIL || 'admin@example.com');
+
   return (
     <html lang="en">
       <body>
@@ -22,10 +28,20 @@ export default function RootLayout({
                 <strong>Baller</strong>
               </Link>
             </h1>
-            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.9rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.9rem', alignItems: 'baseline' }}>
               <Link href="/">Home</Link>
               <Link href="/contribute">Contribute</Link>
-              <Link href="/admin">Admin</Link>
+              {user && <Link href="/history">History</Link>}
+              {isAdmin && <Link href="/admin">Admin</Link>}
+              {!user ? (
+                <form action={signInWithGoogle} style={{ margin: 0 }}>
+                  <button type="submit" style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'var(--color-link)', fontSize: '0.9rem', padding: 0 }}>Login</button>
+                </form>
+              ) : (
+                <form action={signOut} style={{ margin: 0 }}>
+                  <button type="submit" style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'var(--color-link)', fontSize: '0.9rem', padding: 0 }}>Logout</button>
+                </form>
+              )}
             </div>
           </div>
         </div>

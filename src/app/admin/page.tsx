@@ -1,24 +1,16 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AdminPage() {
-  const [passcode, setPasscode] = useState('');
-  const [authenticated, setAuthenticated] = useState(false);
   const [pending, setPending] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
 
-  // Use a hardcoded passcode for initial minimal setup as agreed
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (passcode === 'admin123') { // In production, this goes to an API wrapper or proper auth
-      setAuthenticated(true);
-      fetchPending();
-    } else {
-      alert("Invalid Passcode");
-    }
-  };
+  useEffect(() => {
+    fetchPending();
+  }, []);
 
   const fetchPending = async () => {
     setLoading(true);
@@ -50,9 +42,10 @@ export default function AdminPage() {
       // 1. Insert into resources
       const { error: insertError } = await supabase.from('resources').insert([{
         subject_id: item.subject_id,
-        year: item.year,
         semester: item.semester,
         exam_type: item.exam_type,
+        slot: item.slot,
+        faculty: item.faculty,
         resource_type: item.resource_type,
         file_url: item.file_url,
         file_name: `${item.exam_type} - ${item.resource_type}`,
@@ -69,23 +62,6 @@ export default function AdminPage() {
     }
   };
 
-  if (!authenticated) {
-    return (
-      <div style={{ maxWidth: '400px', margin: '2rem auto' }}>
-        <h2>Admin Authentication</h2>
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <input 
-            type="password" 
-            placeholder="Passcode" 
-            value={passcode} 
-            onChange={(e) => setPasscode(e.target.value)} 
-            style={{ padding: '0.5rem', border: '1px solid var(--color-cf-border)' }} 
-          />
-          <button type="submit" style={{ padding: '0.5rem', cursor: 'pointer' }}>Login</button>
-        </form>
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -97,37 +73,43 @@ export default function AdminPage() {
       ) : pending.length === 0 ? (
         <p>No pending contributions.</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th style={{ width: '15%' }}>Date</th>
-              <th style={{ width: '15%' }}>Subject</th>
-              <th style={{ width: '10%' }}>Year/Sem</th>
-              <th style={{ width: '20%' }}>Type</th>
-              <th style={{ width: '15%' }}>Submitted By</th>
-              <th style={{ width: '10%' }}>File</th>
-              <th style={{ width: '15%' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pending.map((item) => (
-              <tr key={item.id}>
-                <td>{new Date(item.created_at).toLocaleDateString()}</td>
-                <td>{item.subjects?.code}</td>
-                <td>{item.year} / Sem {item.semester}</td>
-                <td>{item.exam_type} - {item.resource_type}</td>
-                <td>{item.submitted_by || 'Anonymous'}</td>
-                <td>
-                  <a href={item.file_url} target="_blank" rel="noopener noreferrer">View</a>
-                </td>
-                <td>
-                  <button onClick={() => handleAction(item.id, 'approve')} style={{ color: 'green', marginRight: '0.5rem' }}>Approve</button>
-                  <button onClick={() => handleAction(item.id, 'reject')} style={{ color: 'red' }}>Reject</button>
-                </td>
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+            <thead>
+              <tr>
+                <th style={{ width: '15%' }}>Date</th>
+                <th style={{ width: '15%' }}>Subject</th>
+                <th style={{ width: '10%' }}>Semester</th>
+                <th style={{ width: '10%' }}>Slot</th>
+                <th style={{ width: '10%' }}>Faculty</th>
+                <th style={{ width: '15%' }}>Type</th>
+                <th style={{ width: '15%' }}>Submitted By</th>
+                <th style={{ width: '10%' }}>File</th>
+                <th style={{ width: '15%' }}>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {pending.map((item) => (
+                <tr key={item.id}>
+                  <td>{new Date(item.created_at).toLocaleDateString()}</td>
+                  <td>{item.subjects?.code}</td>
+                  <td>{item.semester}</td>
+                  <td>{item.slot || '-'}</td>
+                  <td>{item.faculty || '-'}</td>
+                  <td>{item.exam_type} - {item.resource_type}</td>
+                  <td>{item.submitted_by || 'Anonymous'}</td>
+                  <td>
+                    <a href={item.file_url} target="_blank" rel="noopener noreferrer">View</a>
+                  </td>
+                  <td>
+                    <button onClick={() => handleAction(item.id, 'approve')} style={{ color: 'green', marginRight: '0.5rem' }}>Approve</button>
+                    <button onClick={() => handleAction(item.id, 'reject')} style={{ color: 'red' }}>Reject</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
