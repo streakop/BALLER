@@ -6,12 +6,49 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Select from 'react-select';
 import Link from 'next/link';
 
+// react-select style overrides using CSS variables directly.
+// Defined outside the component so it's a stable reference and
+// avoids any typeof window checks that cause hydration mismatches.
+const reactSelectStyles = {
+  control: (base: any) => ({
+    ...base,
+    backgroundColor: 'var(--color-cf-bg)',
+    borderColor: 'var(--color-cf-border)',
+    color: 'var(--color-cf-text)',
+    boxShadow: 'none',
+    '&:hover': { borderColor: 'var(--color-cf-link)' },
+  }),
+  menu: (base: any) => ({
+    ...base,
+    backgroundColor: 'var(--color-cf-bg)',
+    border: '1px solid var(--color-cf-border)',
+  }),
+  option: (base: any, state: any) => ({
+    ...base,
+    backgroundColor: state.isFocused ? 'var(--color-cf-header)' : 'var(--color-cf-bg)',
+    color: 'var(--color-cf-text)',
+  }),
+  singleValue: (base: any) => ({
+    ...base,
+    color: 'var(--color-cf-text)',
+  }),
+  placeholder: (base: any) => ({
+    ...base,
+    color: 'color-mix(in srgb, var(--color-cf-text) 45%, transparent)',
+  }),
+  input: (base: any) => ({
+    ...base,
+    color: 'var(--color-cf-text)',
+  }),
+};
+
 function ContributeForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const defaultSubjectId = searchParams?.get('subject') || '';
   const typeParam = searchParams?.get('type');
-  
+
   let selectedType: string | null = null;
   if (typeParam === 'pyq') selectedType = 'Question Paper';
   if (typeParam === 'notes') selectedType = 'Notes';
@@ -145,7 +182,7 @@ function ContributeForm() {
         </div>
       )}
 
-      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f9f9f9', padding: '0.5rem 1rem', border: '1px solid var(--color-cf-border)' }}>
+      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--color-cf-header)', padding: '0.5rem 1rem', border: '1px solid var(--color-cf-border)' }}>
         <span>You are contributing: <strong>{selectedType}</strong></span>
         <Link href="/contribute" style={{ background: 'none', border: 'none', color: 'var(--color-link)', cursor: 'pointer', textDecoration: 'underline' }}>Change</Link>
       </div>
@@ -154,12 +191,13 @@ function ContributeForm() {
         <div>
           <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Subject</label>
           <Select
+            instanceId="select-subject"
             name="subject_id"
             required
             defaultValue={subjects.map(s => ({ value: s.id, label: `${s.code} - ${s.name}` })).find(o => o.value === defaultSubjectId)}
             options={subjects.map(sub => ({ value: sub.id, label: `${sub.code} - ${sub.name}` }))}
             placeholder="-- Search or Select a Course --"
-            styles={{ control: (base) => ({ ...base, borderColor: 'var(--color-cf-border)' }) }}
+            styles={reactSelectStyles}
           />
         </div>
 
@@ -167,11 +205,12 @@ function ContributeForm() {
           <div style={{ flex: '1 1 200px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Semester</label>
             <Select
+              instanceId="select-semester"
               name="semester"
               required
               options={semesters.map(sem => ({ value: sem.name, label: sem.name }))}
               placeholder="-- Search or Select a Semester --"
-              styles={{ control: (base) => ({ ...base, borderColor: 'var(--color-cf-border)' }) }}
+              styles={reactSelectStyles}
             />
           </div>
         </div>
@@ -181,16 +220,16 @@ function ContributeForm() {
             <div style={{ flex: '1 1 200px' }}>
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Exam Type</label>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button 
+                <button
                   type="button"
                   onClick={() => setExamType('Midterm')}
-                  style={{ 
-                    flex: 1, 
-                    padding: '0.4rem', 
-                    cursor: 'pointer', 
-                    border: examType === 'Midterm' ? '2px solid #2563eb' : '2px solid #ccc', 
-                    backgroundColor: examType === 'Midterm' ? '#eff6ff' : 'transparent',
-                    color: examType === 'Midterm' ? '#1d4ed8' : '#666',
+                  style={{
+                    flex: 1,
+                    padding: '0.4rem',
+                    cursor: 'pointer',
+                    border: examType === 'Midterm' ? '2px solid var(--color-cf-link)' : '2px solid var(--color-cf-border)',
+                    backgroundColor: examType === 'Midterm' ? 'var(--color-cf-header)' : 'transparent',
+                    color: examType === 'Midterm' ? 'var(--color-cf-link)' : 'var(--color-cf-text)',
                     borderRadius: '6px',
                     fontWeight: 'bold',
                     transition: 'all 0.2s ease-in-out'
@@ -198,16 +237,16 @@ function ContributeForm() {
                 >
                   Midterm
                 </button>
-                <button 
+                <button
                   type="button"
                   onClick={() => setExamType('Endterm')}
-                  style={{ 
-                    flex: 1, 
-                    padding: '0.4rem', 
-                    cursor: 'pointer', 
-                    border: examType === 'Endterm' ? '2px solid #2563eb' : '2px solid #ccc', 
-                    backgroundColor: examType === 'Endterm' ? '#eff6ff' : 'transparent',
-                    color: examType === 'Endterm' ? '#1d4ed8' : '#666',
+                  style={{
+                    flex: 1,
+                    padding: '0.4rem',
+                    cursor: 'pointer',
+                    border: examType === 'Endterm' ? '2px solid var(--color-cf-link)' : '2px solid var(--color-cf-border)',
+                    backgroundColor: examType === 'Endterm' ? 'var(--color-cf-header)' : 'transparent',
+                    color: examType === 'Endterm' ? 'var(--color-cf-link)' : 'var(--color-cf-text)',
                     borderRadius: '6px',
                     fontWeight: 'bold',
                     transition: 'all 0.2s ease-in-out'
