@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { signInWithGoogle, signOut } from './actions';
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import ProgressBar from "@/components/ProgressBar";
 
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        <ProgressBar/>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <nav className="navbar">
             <div className="navbar-inner">
