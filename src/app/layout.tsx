@@ -6,7 +6,7 @@ import { signInWithGoogle, signOut } from './actions';
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import ProgressBar from "@/components/ProgressBar";
-
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Baller - PYQ & Study Material",
@@ -54,6 +54,7 @@ export default async function RootLayout({
           </nav>
           <main style={{ padding: '0.5rem' }}>
             {children}
+            <Analytics/>
           </main>
         </ThemeProvider>
       </body>
