@@ -25,7 +25,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ProgressBar/>
+        
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <nav className="navbar">
             <div className="navbar-inner">
