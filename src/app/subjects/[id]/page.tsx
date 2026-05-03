@@ -3,15 +3,15 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ResourceList from '@/components/ResourceList';
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 // Next 15 Dynamic page segment
 export default async function SubjectPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }) {
-  const { id } = await params;
+  const { id } = params;
   const supabase = await createClient();
 
   // Fetch subject details
