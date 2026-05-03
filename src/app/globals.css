@@ -132,6 +132,11 @@ a:hover {
   text-decoration: underline;
   color: var(--color-cf-link-hover);
 }
+/* Progress bar color */
+#nprogress .bar {
+  background: red !important;
+  height: 3px; /* optional thickness */
+}
 
 /* ── Form fields ──────────────────────────────────────── */
 input,
