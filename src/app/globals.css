@@ -14,12 +14,91 @@
   --foreground: var(--color-cf-text);
 }
 
+/* Dark mode — toggled by next-themes adding class="dark" to <html> */
+.dark {
+  --color-cf-bg: #121212;
+  --color-cf-text: #e8e8e8;
+  --color-cf-border: #333333;
+  --color-cf-header: #1e1e1e;
+  --color-cf-link: #7eb9ff;
+  --color-cf-link-hover: #aad4ff;
+}
+
+/* ── Navbar ───────────────────────────────────────────── */
+.navbar {
+  background: var(--color-cf-header);
+  border-bottom: 1px solid var(--color-cf-border);
+  padding: 0 1rem;
+}
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 48px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nav-links::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-links a {
+  color: var(--color-cf-text);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* ThemeToggle desktop: last in nav-links, always rightmost due to flex-end */
+.nav-links > button {
+  flex-shrink: 0;
+}
+
+/* ThemeToggle mobile: floating button — completely independent of navbar layout */
+@media (max-width: 640px) {
+  .nav-links > button {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    z-index: 999;
+    background: var(--color-cf-header) !important;
+    border: 1px solid var(--color-cf-border) !important;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+    padding: 0 !important;
+    font-size: 1.1rem !important;
+  }
+}
+
+
+
+
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+
+  background: var(--color-cf-bg);
+  color: var(--color-cf-text);
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 table {
@@ -28,7 +107,8 @@ table {
   margin-bottom: 1rem;
 }
 
-th, td {
+th,
+td {
   border: 1px solid var(--color-cf-border);
   padding: 0.5rem;
   text-align: left;
@@ -40,7 +120,7 @@ th {
 }
 
 tr:nth-child(even) {
-  background-color: #fcfcfc;
+  background-color: color-mix(in srgb, var(--color-cf-bg) 90%, var(--color-cf-border));
 }
 
 a {
@@ -51,4 +131,27 @@ a {
 a:hover {
   text-decoration: underline;
   color: var(--color-cf-link-hover);
+}
+
+/* ── Form fields ──────────────────────────────────────── */
+input,
+textarea,
+select {
+  background-color: var(--color-cf-bg);
+  color: var(--color-cf-text);
+  border: 1px solid var(--color-cf-border);
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: color-mix(in srgb, var(--color-cf-text) 45%, transparent);
+}
+
+/* Utility: replaces hardcoded #f9f9f9 panels */
+.panel-muted {
+  background-color: var(--color-cf-header);
+  border: 1px solid var(--color-cf-border);
 }

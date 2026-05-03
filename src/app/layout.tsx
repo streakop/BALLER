@@ -3,6 +3,9 @@ import "./globals.css";
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { signInWithGoogle, signOut } from './actions';
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeToggle } from "@/components/ThemeToggle";
+
 
 export const metadata: Metadata = {
   title: "Baller - PYQ & Study Material",
@@ -19,35 +22,38 @@ export default async function RootLayout({
   const isAdmin = user?.email === (process.env.ADMIN_EMAIL || 'admin@example.com');
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <div style={{ padding: '0.5rem', backgroundColor: 'var(--color-cf-header)', borderBottom: '1px solid var(--color-cf-border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <h1 style={{ margin: 0, fontSize: '1.25rem' }}>
-              <Link href="/" style={{ color: 'var(--color-cf-text)', textDecoration: 'none' }}>
-                <strong>Baller</strong>
-              </Link>
-            </h1>
-            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.9rem', alignItems: 'baseline' }}>
-              <Link href="/">Home</Link>
-              <Link href="/contribute">Contribute</Link>
-              {user && <Link href="/history">History</Link>}
-              {isAdmin && <Link href="/admin">Admin</Link>}
-              {!user ? (
-                <form action={signInWithGoogle} style={{ margin: 0 }}>
-                  <button type="submit" style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'var(--color-link)', fontSize: '0.9rem', padding: 0 }}>Login</button>
-                </form>
-              ) : (
-                <form action={signOut} style={{ margin: 0 }}>
-                  <button type="submit" style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'var(--color-link)', fontSize: '0.9rem', padding: 0 }}>Logout</button>
-                </form>
-              )}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <nav className="navbar">
+            <div className="navbar-inner">
+              <h1 style={{ margin: 0, fontSize: '1.25rem' }}>
+                <Link href="/" style={{ color: 'var(--color-cf-text)', textDecoration: 'none' }}>
+                  <strong>Baller</strong>
+                </Link>
+              </h1>
+              <div className="nav-links">
+                <Link href="/">Home</Link>
+                <Link href="/contribute">Contribute</Link>
+                {user && <Link href="/history">History</Link>}
+                {isAdmin && <Link href="/admin">Admin</Link>}
+                {!user ? (
+                  <form action={signInWithGoogle} style={{ margin: 0 }}>
+                    <button type="submit" style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'var(--color-link)', fontSize: '0.9rem', padding: 0 }}>Login</button>
+                  </form>
+                ) : (
+                  <form action={signOut} style={{ margin: 0 }}>
+                    <button type="submit" style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'var(--color-link)', fontSize: '0.9rem', padding: 0 }}>Logout</button>
+                  </form>
+                )}
+                <ThemeToggle />
+              </div>
             </div>
-          </div>
-        </div>
-        <main style={{ padding: '1rem' }}>
-          {children}
-        </main>
+          </nav>
+          <main style={{ padding: '0.5rem' }}>
+            {children}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );
