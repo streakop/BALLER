@@ -31,7 +31,6 @@ export default async function SubjectPage({
     .select('*')
     .eq('subject_id', id)
     .eq('verified', true)
-    .order('year', { ascending: false })
     .order('semester', { ascending: false });
 
   const hasResources = resources && resources.length > 0;
@@ -45,7 +44,13 @@ export default async function SubjectPage({
         </div>
       </div>
 
-      {!hasResources && (
+      {resError && (
+        <div style={{ padding: '1rem', border: '1px solid red', backgroundColor: '#ffeeee', color: 'red', marginBottom: '1rem' }}>
+          Failed to load resources. Error: {resError.message}
+        </div>
+      )}
+
+      {!hasResources && !resError && (
         <div style={{ padding: '1rem', border: '1px solid var(--color-cf-border)' }}>
           No resources found for this subject yet. <Link href={`/contribute?subject=${subject.id}`}>Contribute one!</Link>
         </div>

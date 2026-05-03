@@ -51,7 +51,7 @@ function ContributeForm() {
 
   let selectedType: string | null = null;
   if (typeParam === 'pyq') selectedType = 'Question Paper';
-  if (typeParam === 'notes') selectedType = 'Notes';
+  if (typeParam === 'studyMaterial') selectedType = 'Study Material';
   if (typeParam === 'assignment') selectedType = 'Assignment';
 
   const supabase = createClient();
@@ -151,17 +151,17 @@ function ContributeForm() {
           <Link
             href="/contribute?type=pyq"
             style={{ display: 'block', textDecoration: 'none', color: 'inherit', padding: '1.5rem', fontSize: '1.1rem', backgroundColor: 'var(--color-cf-header)', border: '1px solid var(--color-cf-border)', borderRadius: '8px' }}>
-            📝 Question Paper (PYQ)
+            Question Paper (PYQ)
           </Link>
           <Link
-            href="/contribute?type=notes"
+            href="/contribute?type=studyMaterial"
             style={{ display: 'block', textDecoration: 'none', color: 'inherit', padding: '1.5rem', fontSize: '1.1rem', backgroundColor: 'var(--color-cf-header)', border: '1px solid var(--color-cf-border)', borderRadius: '8px' }}>
-            📚 Study Material (Notes)
+            Study Material (Notes or PPT)
           </Link>
           <Link
             href="/contribute?type=assignment"
             style={{ display: 'block', textDecoration: 'none', color: 'inherit', padding: '1.5rem', fontSize: '1.1rem', backgroundColor: 'var(--color-cf-header)', border: '1px solid var(--color-cf-border)', borderRadius: '8px' }}>
-            📄 Assignment
+            Assignment
           </Link>
         </div>
       </div>
