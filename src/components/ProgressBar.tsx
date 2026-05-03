@@ -10,13 +10,19 @@ export default function ProgressBar() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    // Configure once
+    NProgress.configure({
+      showSpinner: false,
+      trickle: true,       // auto-increment
+      trickleSpeed: 100,   // speed of increments
+      minimum: 0.1,        // start at 10%
+    });
+
     NProgress.start();
 
-    const timeout = setTimeout(() => {
+    return () => {
       NProgress.done();
-    }, 300); // small delay to make it visible
-
-    return () => clearTimeout(timeout);
+    };
   }, [pathname, searchParams]);
 
   return null;
