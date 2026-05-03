@@ -133,11 +133,31 @@ a:hover {
   color: var(--color-cf-link-hover);
 }
 /* Progress bar color */
-#nprogress .bar {
-  background: red !important;
-  height: 3px; /* optional thickness */
+/* Progress bar container */
+#nprogress {
+  pointer-events: none;
 }
 
+/* Bar */
+#nprogress .bar {
+  background: red;
+  height: 3px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+}
+
+/* Glow effect */
+#nprogress .peg {
+  box-shadow: 0 0 10px red, 0 0 5px red;
+}
+
+/* Remove spinner (optional) */
+#nprogress .spinner {
+  display: none;
+}
 /* ── Form fields ──────────────────────────────────────── */
 input,
 textarea,
