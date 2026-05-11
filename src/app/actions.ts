@@ -30,6 +30,11 @@ export async function signInWithGoogle() {
     },
   })
 
+  if (error) {
+    console.error("Error initiating Google OAuth:", error)
+    return
+  }
+
   if (data.url) {
     redirect(data.url)
   }
@@ -50,12 +55,17 @@ export async function ensureProfile() {
 
   // If it doesn't exist, insert a basic row (don't use Google details for anonymity)
   if (!profile) {
-    await supabase.from("profiles").insert({
+    const { error } = await supabase.from("profiles").insert({
       id: user.id,
       email: user.email,
       setup_completed: false,
     })
+    if (error) {
+      console.error("Error inserting profile in ensureProfile:", error)
+      return error
+    }
   }
+  return null
 }
 
 export async function signOut() {

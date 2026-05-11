@@ -17,12 +17,15 @@ export async function GET(request: Request) {
 
       if (user) {
         // UPSERT INTO PROFILES TABLE
-        await supabase.from("profiles").upsert({
+        const { error: upsertError } = await supabase.from("profiles").upsert({
           id: user.id,
           email: user.email,
           full_name: user.user_metadata?.full_name,
           avatar_url: user.user_metadata?.avatar_url,
         })
+        if (upsertError) {
+          console.error("Error upserting profile in callback:", upsertError)
+        }
       }
 
       return NextResponse.redirect(`${origin}${next}`)

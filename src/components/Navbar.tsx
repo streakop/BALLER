@@ -76,7 +76,7 @@ export function Navbar({ profile }: { profile: any }) {
         <div className="flex items-center gap-2 sm:gap-3">
           {profile ? (
             <>
-              {profile.setup_completed === false && (
+              {profile?.setup_completed === false && (
                 <Link href="/setup-profile" className="hidden sm:block">
                   <Button variant="outline" size="sm" className="text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors">
                     Setup Profile
@@ -88,7 +88,7 @@ export function Navbar({ profile }: { profile: any }) {
                   <UserAvatar profile={profile} />
                 </Button>
                 <span className="hidden sm:inline-block text-sm font-medium">
-                  {profile.username || "Anonymous"}
+                  {profile?.username || "Anonymous"}
                 </span>
               </div>
               <form action={signOut}>
