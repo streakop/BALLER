@@ -34,24 +34,14 @@ export default async function RootLayout({
   let profileError = null;
 
   if (user) {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("profiles")
       .select("full_name, avatar_url, username, setup_completed")
       .eq("id", user.id)
       .single();
 
     profile = data;
-    if (error) profileError = error;
   }
-
-  // Combine errors
-  const displayError = insertError || (profileError && profileError.code !== 'PGRST116' ? profileError : null);
-
-  console.log("RootLayout Auth State ->", { 
-    userId: user?.id, 
-    hasProfile: !!profile, 
-    profileData: profile 
-  });
 
   return (
     <html
@@ -61,18 +51,6 @@ export default async function RootLayout({
     >
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-
-          {/* DEBUG ERROR SCREEN */}
-          {displayError && (
-            <div className="bg-red-500 text-white p-4 text-center z-50 relative">
-              <strong>Database Error:</strong> {displayError.message}
-            </div>
-          )}
-
-          {/* AUTH DEBUG INFO */}
-          <div className="bg-yellow-100 text-black p-2 text-xs text-center">
-            Debug Info: User ID is {user?.id || "NULL"}. Profile is {profile ? "FOUND" : "NULL"}.
-          </div>
 
           {/* 🔥 NAVBAR ADDED HERE */}
           
