@@ -83,9 +83,14 @@ export function Navbar({ profile }: { profile: any }) {
                   </Button>
                 </Link>
               )}
-              <Button variant={"avatar"}>
-                <UserAvatar profile={profile} />
-              </Button>
+              <div className="flex items-center gap-2 pr-2">
+                <Button variant={"avatar"} className="rounded-full w-8 h-8 p-0">
+                  <UserAvatar profile={profile} />
+                </Button>
+                <span className="hidden sm:inline-block text-sm font-medium">
+                  {profile.username || "Anonymous"}
+                </span>
+              </div>
               <form action={signOut}>
                 <Button variant="ghost" size="sm" type="submit" className="text-xs text-muted-foreground hover:text-destructive">
                   Logout
