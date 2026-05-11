@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
+
 export async function logResourceViewAndRedirect(resourceId: string, fileUrl: string) {
   const supabase = await createClient()
   
@@ -31,6 +32,29 @@ export async function signInWithGoogle() {
 
   if (data.url) {
     redirect(data.url)
+  }
+}
+
+export async function ensureProfile() {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  // Check if profile exists
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", user.id)
+    .single()
+
+  // If it doesn't exist, insert a basic row (don't use Google details for anonymity)
+  if (!profile) {
+    await supabase.from("profiles").insert({
+      id: user.id,
+      email: user.email,
+      setup_completed: false,
+    })
   }
 }
 

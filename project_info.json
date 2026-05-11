@@ -1,0 +1,112 @@
+{
+  "project_name": "Baller",
+  "description": "A comprehensive platform for VIT BHOPAL students featuring Previous Year Questions (PYQs), student club information, discussion forums, and academic/career opportunities.",
+  "tech_stack": {
+    "frontend": "Next.js 16.2 (App Router, Server Actions)",
+    "styling": "Tailwind CSS 4, Lucide Icons, Framer Motion, Radix UI, Shadcn",
+    "backend_database": "Supabase (PostgreSQL)",
+    "authentication": "Supabase Auth with Google OAuth",
+    "deployment": "Vercel",
+    "analytics": "Vercel Analytics",
+    "language": "TypeScript"
+  },
+  "system_details": {
+    "supabase": {
+      "services_used": [
+        "Authentication (OAuth)",
+        "PostgreSQL Database",
+        "Storage (for PYQ files)",
+        "SSR (Server Side Rendering) Integration"
+      ],
+      "auth_providers": ["Google"],
+      "database_schema": {
+        "contributions": {
+          "description": "Student-submitted resources awaiting verification",
+          "columns": ["id", "subject_id", "exam_type", "resource_type", "file_url", "submitted_by", "status", "created_at", "semester", "slot", "faculty"]
+        },
+        "resources": {
+          "description": "Verified study materials and PYQs available to users",
+          "columns": ["id", "subject_id", "exam_type", "resource_type", "file_url", "file_name", "uploaded_at", "verified", "semester", "slot", "faculty"]
+        },
+        "subjects": {
+          "description": "Academic subjects and course codes",
+          "columns": ["id", "name", "code"]
+        },
+        "semesters": {
+          "description": "Valid semester labels (e.g., Fall 2023)",
+          "columns": ["name"]
+        },
+        "view_history": {
+          "description": "User interaction logs for resource views",
+          "columns": ["id", "user_id", "resource_id", "viewed_at"]
+        }
+      },
+      "database_relationships": [
+        "contributions.subject_id -> subjects.id",
+        "contributions.semester -> semesters.name",
+        "resources.subject_id -> subjects.id",
+        "resources.semester -> semesters.name",
+        "view_history.user_id -> auth.users.id",
+        "view_history.resource_id -> resources.id"
+      ]
+    },
+    "authentication_flow": {
+      "provider": "Google OAuth 2.0",
+      "implementation": "Supabase Server-Side Auth (PKCE flow)",
+      "callback_handling": "/auth/callback route for session exchange"
+    },
+    "performance_ux": {
+      "loading_indicators": "NProgress for top-bar loading states",
+      "animations": "Framer Motion and Tailwind Animate for smooth UI transitions",
+      "theme_management": "next-themes with system preference sync"
+    },
+    "analytics_monitoring": {
+      "platform": "Vercel Analytics",
+      "tracking": "Real-time traffic and user interaction monitoring"
+    }
+  },
+  "core_features": [
+    {
+      "name": "PYQ Repository",
+      "description": "A centralized, searchable collection of Previous Year Questions for VIT BHOPAL subjects."
+    },
+    {
+      "name": "Clubs Directory",
+      "description": "A dedicated section to explore and discover student clubs."
+    },
+    {
+      "name": "Discussion Forums",
+      "description": "A platform for students to engage in academic and general discussions."
+    },
+    {
+      "name": "Opportunities Board",
+      "description": "A space to find and share internships, hackathons, and other career opportunities."
+    },
+    {
+      "name": "Subject-wise Browsing",
+      "description": "Organized navigation to find resources specific to various courses and subjects."
+    },
+    {
+      "name": "Student Contribution",
+      "description": "An integrated system allowing students to upload and share resources with the community."
+    },
+    {
+      "name": "Admin Control Panel",
+      "description": "Secure management tools for overseeing resources and user contributions."
+    },
+    {
+      "name": "Donation System",
+      "description": "A dedicated page for users to support the platform's hosting and development costs."
+    },
+    {
+      "name": "Responsive UI",
+      "description": "A modern, mobile-friendly interface with fluid animations and transitions."
+    },
+    {
+      "name": "Theme Customization",
+      "description": "Support for both Dark and Light modes for an optimal user experience."
+    }
+  ],
+  "target_audience": "VIT BHOPAL Students",
+  "repository_goal": "To provide easy access to academic resources, foster a collaborative learning environment, and act as a central hub for student activities."
+}

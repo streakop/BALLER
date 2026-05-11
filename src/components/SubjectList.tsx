@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
+import { Input } from '@/components/ui/input';
+
 export default function SubjectList({ subjects }: { subjects: any[] }) {
   const [search, setSearch] = useState('');
 
@@ -15,25 +17,19 @@ export default function SubjectList({ subjects }: { subjects: any[] }) {
 
   return (
     <>
-      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>Courses</h2>
-        <div>
-          <input
+      <div className="mb-4 flex justify-between items-center">
+        <div className="w-full max-w-sm">
+          <Input
             type="text"
             placeholder="Search course name or code..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{
-              padding: '0.25rem 0.5rem',
-              border: '1px solid red',
-              width: '250px'
-            }}
           />
         </div>
       </div>
 
       {!hasData && (
-        <div style={{ padding: '1rem', border: '1px solid var(--color-cf-border)' }}>
+        <div className="p-4 border rounded-md text-center text-muted-foreground">
           No courses found matching "{search}".
         </div>
       )}
@@ -52,12 +48,12 @@ export default function SubjectList({ subjects }: { subjects: any[] }) {
               <tr key={sub.id}>
                 <td><strong>{sub.code}</strong></td>
                 <td>
-                  <Link href={`/subjects/${sub.id}`}>
-                    {sub.name}
+                  <Link href={`/subjects/${sub.id}`} className="cf-link">
+                    {sub.name} 
                   </Link>
                 </td>
                 <td>
-                  <Link href={`/subjects/${sub.id}`}>View Materials</Link>
+                  <Link href={`/subjects/${sub.id}`} className="cf-link">View Materials</Link>
                 </td>
               </tr>
             ))}

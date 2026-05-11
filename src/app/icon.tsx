@@ -17,9 +17,9 @@ export default function Icon() {
           backgroundColor: '#1d4ed8', // Deep blue
           color: 'white',
           fontSize: 320,
-          fontWeight: 'bold',
+          fontWeight: 'bolder',
           fontFamily: 'sans-serif',
-          borderRadius: '50%', // This makes it perfectly round!
+          borderRadius: '20px', // This makes it perfectly round!
         }}
       >
         B
