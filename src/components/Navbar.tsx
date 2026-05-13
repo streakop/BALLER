@@ -40,7 +40,7 @@ export function Navbar({ profile }: { profile: any }) {
         </Link>
 
         {/* CENTER NAV */}
-        <div className="hidden md:flex items-center gap-2 lg:gap-4 ring-1 ring-blue-500 rounded-full px-2 py-1 overflow-x-auto scrollbar-hidden">
+        <div className="hidden md:flex items-center gap-2 lg:gap-4 rounded-full px-2 py-1 overflow-x-auto scrollbar-hidden">
           <Link href={"/"}>
             <Button variant={'nav'} size={'nav'}>
               Home
